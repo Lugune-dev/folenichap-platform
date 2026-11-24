@@ -120,7 +120,7 @@ const ERRORS: Record<Lang, Dict> = {
     CHECK_IN_NOT_OPEN: 'Usajili unafunguliwa saa 1 kabla ya miadi yako', CHECK_IN_CLOSED: 'Muda wa kujisajili umepita. Ongea na mapokezi.',
     NOT_TODAY: 'Unaweza kusajili miadi ya leo tu', INVALID_RESET_CODE: 'Namba ya uthibitisho si sahihi au imeisha muda',
     NETWORK: 'Hakuna muunganisho na seva. Kagua intaneti yako kisha ujaribu tena.', SERVER_ERROR: 'Seva ina hitilafu kwa sasa. Jaribu tena baada ya muda mfupi.',
-    FORBIDDEN: 'Huna ruhusa ya kufanya hili'
+    FORBIDDEN: 'Huna ruhusa ya kufanya hili', SERVER_WAKING: 'Seva inaamka. Tafadhali jaribu tena baada ya sekunde 30.'
   },
   en: {
     INVALID_PHONE: 'Invalid phone number. Example: 0712 345 678', RATE_LIMITED: 'Too many requests. Wait a minute.',
@@ -138,7 +138,7 @@ const ERRORS: Record<Lang, Dict> = {
     CHECK_IN_NOT_OPEN: 'Check-in opens 1 hour before your appointment', CHECK_IN_CLOSED: 'Check-in has closed. Please talk to reception.',
     NOT_TODAY: "Only today's appointments can be checked in", INVALID_RESET_CODE: 'The code is wrong or has expired',
     NETWORK: 'Cannot reach the server. Check your internet connection and try again.', SERVER_ERROR: 'The server had a problem. Please try again shortly.',
-    FORBIDDEN: 'You are not allowed to do this'
+    FORBIDDEN: 'You are not allowed to do this', SERVER_WAKING: 'The server is waking up. Please try again in 30 seconds.'
   }
 };
 

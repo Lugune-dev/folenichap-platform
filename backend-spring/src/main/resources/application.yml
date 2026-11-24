@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}   # hosting platforms (Render) may inject PORT
   # Trust X-Forwarded-* only from internal proxies (nginx in docker / private network), so a client
   # cannot spoof its IP to bypass rate limits or the webhook IP allow-list.
   forward-headers-strategy: native
@@ -131,6 +131,10 @@ foleni:
     super-admin-email: ${SUPER_ADMIN_EMAIL:}
     super-admin-password: ${SUPER_ADMIN_PASSWORD:}
     super-admin-name: ${SUPER_ADMIN_NAME:Platform Owner}
+  # Set only when the API is reached through a proxy that can't be identified by IP (Vercel -> Render).
+  # The proxy must send the same value in X-Proxy-Secret. Empty = off (VPS + nginx).
+  proxy:
+    shared-secret: ${PROXY_SHARED_SECRET:}
   trial-days: 14
   require-tenant-approval: ${REQUIRE_TENANT_APPROVAL:false}
   plans:
