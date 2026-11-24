@@ -56,9 +56,11 @@ spring:
   # provider uses PgBouncer in transaction mode (Neon "-pooler", Supabase 6543).
   flyway:
     enabled: true
-    url: ${DB_MIGRATION_URL:${DB_URL}}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    # Reuse the datasource settings so profile defaults (application-local.yml) apply to migrations too.
+    # Without this, a missing DB_USERNAME reached Postgres as the literal text "${DB_USERNAME}" (CI failure).
+    url: ${DB_MIGRATION_URL:${spring.datasource.url}}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true

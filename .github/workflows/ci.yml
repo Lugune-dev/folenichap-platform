@@ -24,6 +24,10 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: local
           DB_URL: jdbc:postgresql://localhost:5432/folenichap
+          DB_USERNAME: foleni_admin
+          DB_PASSWORD: foleni
+          # CI only: the simulated payment gateway. The app refuses MOCK unless this is set (never in production).
+          ALLOW_MOCK_PAYMENTS: "true"
         run: |
           java -jar target/folenichap.jar &
           for i in $(seq 1 60); do curl -sf localhost:8080/actuator/health && exit 0; sleep 2; done
