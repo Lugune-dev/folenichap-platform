@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class FoleniChapApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FoleniChapApplication.class, args);
+        SpringApplication app = new SpringApplication(FoleniChapApplication.class);
+        app.addListeners(new tz.co.folenichap.config.DatabaseSettingsCheck()); // safe DB settings summary in the logs
+        app.run(args);
     }
 }
