@@ -15,27 +15,60 @@
             "outputPath": "dist",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "assets": [{ "glob": "**/*", "input": "src/assets", "output": "assets" }, "src/manifest.webmanifest"],
-            "styles": ["node_modules/@fontsource-variable/inter/index.css", "src/styles.css"],
-            "allowedCommonJsDependencies": ["qrcode"]
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              "src/manifest.webmanifest"
+            ],
+            "styles": [
+              "node_modules/@fontsource-variable/inter/index.css",
+              "src/styles.css"
+            ],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "600kB", "maximumError": "1.2MB" },
-                { "type": "anyComponentStyle", "maximumWarning": "6kB", "maximumError": "12kB" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "600kB",
+                  "maximumError": "1.2MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kB",
+                  "maximumError": "12kB"
+                }
               ],
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              }
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
               "fileReplacements": [
-                { "replace": "src/environments/environment.ts", "with": "src/environments/environment.development.ts" }
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
               ]
             }
           },
@@ -43,10 +76,16 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": { "proxyConfig": "proxy.conf.json" },
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
-            "production": { "buildTarget": "folenichap:build:production" },
-            "development": { "buildTarget": "folenichap:build:development" }
+            "production": {
+              "buildTarget": "folenichap:build:production"
+            },
+            "development": {
+              "buildTarget": "folenichap:build:development"
+            }
           },
           "defaultConfiguration": "development"
         }
