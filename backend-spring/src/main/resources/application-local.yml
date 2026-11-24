@@ -1,0 +1,18 @@
+# Optional local profile: SPRING_PROFILES_ACTIVE=local
+# Uses a local PostgreSQL instead of the online database (for offline development only).
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/folenichap}
+    username: ${DB_USERNAME:foleni_admin}
+    password: ${DB_PASSWORD:foleni}
+
+foleni:
+  security:
+    jwt-secret: ${JWT_SECRET:ZGV2LW9ubHktc2VjcmV0LWRvLW5vdC11c2UtaW4tcHJvZHVjdGlvbi0xMjM0NTY3ODkw}
+  bootstrap:
+    super-admin-email: ${SUPER_ADMIN_EMAIL:owner@folenichap.local}
+    super-admin-password: ${SUPER_ADMIN_PASSWORD:ChangeMe#2026}
+
+logging:
+  level:
+    tz.co.folenichap: DEBUG

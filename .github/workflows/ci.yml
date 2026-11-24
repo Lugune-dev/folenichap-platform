@@ -1,0 +1,39 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_DB: folenichap, POSTGRES_USER: foleni_admin, POSTGRES_PASSWORD: foleni }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - name: Unit tests + package
+        working-directory: backend-spring
+        run: mvn -B verify
+      - name: Flyway migration + schema validation smoke test
+        working-directory: backend-spring
+        env:
+          SPRING_PROFILES_ACTIVE: local
+          DB_URL: jdbc:postgresql://localhost:5432/folenichap
+        run: |
+          java -jar target/folenichap.jar &
+          for i in $(seq 1 60); do curl -sf localhost:8080/actuator/health && exit 0; sleep 2; done
+          exit 1
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - working-directory: frontend-angular
+        run: npm install && npm run build

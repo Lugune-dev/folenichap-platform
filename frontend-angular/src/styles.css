@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ theme tokens
+ * Light is the default. `.dark` on <html> (set by ThemeService) switches the neutral scale,
+ * so every ink-* / surface utility follows the theme automatically.
+ */
+@layer base {
+  :root {
+    color-scheme: light;
+    --ink: 20 32 28;
+    --ink-soft: 76 89 85;
+    --ink-50: 246 248 247;
+    --ink-100: 238 242 240;
+    --ink-200: 223 229 226;
+    --ink-300: 195 205 201;
+    --ink-400: 147 160 155;
+    --ink-500: 106 120 115;
+    --ink-600: 76 89 85;
+    --ink-700: 56 67 63;
+    --ink-800: 37 48 44;
+    --ink-900: 20 32 28;
+    --ink-950: 10 19 16;
+    --surface: 255 255 255;
+  }
+  :root.dark {
+    color-scheme: dark;
+    --ink: 238 242 240;
+    --ink-soft: 180 191 187;
+    --ink-50: 12 21 18;
+    --ink-100: 26 38 34;
+    --ink-200: 39 51 47;
+    --ink-300: 58 70 66;
+    --ink-400: 111 125 120;
+    --ink-500: 152 165 160;
+    --ink-600: 180 191 187;
+    --ink-700: 203 211 208;
+    --ink-800: 223 229 226;
+    --ink-900: 238 242 240;
+    --ink-950: 246 248 247;
+    --surface: 19 30 26;
+  }
+}
+
+/* ------------------------------------------------------------------ base */
+@layer base {
+  html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+  body { @apply bg-ink-50 font-sans text-ink antialiased; font-feature-settings: 'cv11', 'ss01'; }
+  h1, h2, h3, h4 { @apply tracking-tight text-ink; }
+  ::selection { @apply bg-brand-200 text-ink-900 dark:bg-brand-700 dark:text-white; }
+  :focus-visible { outline: none; }
+  [type='checkbox'], [type='radio'] { @apply h-4 w-4 accent-brand-700; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+}
+
+/* ------------------------------------------------------------------ components */
+@layer components {
+  /* Buttons: one primary per view; secondary for alternatives; ghost for tertiary. */
+  .btn {
+    @apply inline-flex h-10 select-none items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 text-sm font-semibold
+           transition duration-150 focus-visible:shadow-focus disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary { @apply btn bg-brand-700 text-white shadow-sm hover:bg-brand-800 active:bg-brand-900 dark:bg-brand-600 dark:hover:bg-brand-500; }
+  .btn-secondary { @apply btn border border-ink-200 bg-surface text-ink shadow-sm hover:border-ink-300 hover:bg-ink-50; }
+  .btn-subtle { @apply btn bg-brand-50 text-brand-800 hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-200 dark:hover:bg-brand-500/25; }
+  .btn-ghost { @apply btn text-ink-600 hover:bg-ink-100 hover:text-ink; }
+  .btn-danger { @apply btn bg-rose-600 text-white shadow-sm hover:bg-rose-700; }
+  .btn-danger-ghost { @apply btn text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/15; }
+  .btn-sm { @apply h-8 rounded-lg px-3 text-xs; }
+  .btn-lg { @apply h-12 rounded-2xl px-6 text-base; }
+  .btn-xl { @apply h-14 rounded-2xl px-7 text-lg; }
+  .btn-icon { @apply btn h-10 w-10 px-0 text-ink-600 hover:bg-ink-100 hover:text-ink; }
+
+  /* Form fields */
+  .label { @apply mb-1.5 block text-sm font-medium text-ink-700; }
+  .hint { @apply mt-1.5 text-xs text-ink-500; }
+  .field-error { @apply mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-700 dark:text-rose-300; }
+  .input {
+    @apply block h-11 w-full rounded-xl border border-ink-200 bg-surface px-3.5 text-[15px] text-ink shadow-sm transition
+           placeholder:text-ink-400 hover:border-ink-300 focus:border-brand-500 focus:shadow-focus focus:outline-none
+           disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-500;
+  }
+  select.input { @apply appearance-none bg-no-repeat pr-10; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236a7873' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-position: right .75rem center; background-size: 1.1rem; }
+  textarea.input { @apply h-auto min-h-[6rem] py-2.5; }
+  .input.ng-invalid.ng-touched, .input.input-invalid { @apply border-rose-400 focus:border-rose-500; box-shadow: 0 0 0 3px rgba(225,29,72,.12); }
+
+  /* Surfaces */
+  .card { @apply rounded-2xl border border-ink-200/80 bg-surface shadow-card dark:shadow-none; }
+  .card-pad { @apply p-5 sm:p-6; }
+  .card-header { @apply flex items-center justify-between gap-3 border-b border-ink-100 px-5 py-4 sm:px-6; }
+  .card-title { @apply text-base font-semibold text-ink; }
+  .divider { @apply border-t border-ink-100; }
+
+  /* Page structure: clear hierarchy - eyebrow, title, subtitle, actions */
+  .page-header { @apply mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.12em] text-brand-700 dark:text-brand-300; }
+  .page-title { @apply text-2xl font-bold tracking-tight text-ink sm:text-[1.75rem]; }
+  .page-subtitle { @apply mt-1 text-sm text-ink-500; }
+  .section-title { @apply text-lg font-semibold tracking-tight text-ink; }
+
+  /* Status badges: dot + label so meaning never relies on colour alone */
+  .chip { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+  .badge { @apply chip ring-1 ring-inset; }
+  .badge-success { @apply badge bg-brand-50 text-brand-800 ring-brand-200 dark:bg-brand-500/15 dark:text-brand-200 dark:ring-brand-400/30; }
+  .badge-warning { @apply badge bg-accent-50 text-accent-700 ring-accent-200 dark:bg-accent-400/15 dark:text-accent-200 dark:ring-accent-400/30; }
+  .badge-danger { @apply badge bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:ring-rose-400/30; }
+  .badge-info { @apply badge bg-sky-50 text-sky-800 ring-sky-200 dark:bg-sky-500/15 dark:text-sky-200 dark:ring-sky-400/30; }
+  .badge-neutral { @apply badge bg-ink-50 text-ink-600 ring-ink-200; }
+  .dot { @apply h-1.5 w-1.5 shrink-0 rounded-full bg-current; }
+
+  /* Alerts */
+  .alert { @apply flex items-start gap-3 rounded-xl border p-3.5 text-sm; }
+  .alert-danger { @apply alert border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200; }
+  .alert-warning { @apply alert border-accent-200 bg-accent-50 text-accent-700 dark:border-accent-400/30 dark:bg-accent-400/10 dark:text-accent-200; }
+  .alert-info { @apply alert border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-400/30 dark:bg-sky-500/10 dark:text-sky-200; }
+  .alert-success { @apply alert border-brand-200 bg-brand-50 text-brand-900 dark:border-brand-400/30 dark:bg-brand-500/10 dark:text-brand-100; }
+
+  /* Tables */
+  .table-wrap { @apply -mx-5 overflow-x-auto sm:mx-0; }
+  .table-th { @apply whitespace-nowrap border-b border-ink-100 bg-ink-50/60 px-4 py-2.5 text-left text-2xs font-semibold uppercase tracking-wider text-ink-500; }
+  .table-td { @apply border-b border-ink-100 px-4 py-3 text-sm text-ink-700; }
+  tr:last-child > .table-td { @apply border-b-0; }
+
+  /* Navigation */
+  .nav-link { @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-ink-600 transition hover:bg-ink-100 hover:text-ink; }
+  .nav-link.active { @apply bg-brand-50 text-brand-800 dark:bg-brand-500/15 dark:text-brand-200; }
+  .nav-link.active fc-icon { @apply text-brand-700 dark:text-brand-300; }
+
+  /* Stats */
+  .stat { @apply card p-5; }
+  .stat-label { @apply text-xs font-medium text-ink-500; }
+  .stat-value { @apply mt-1.5 text-2xl font-bold tracking-tight text-ink tabular-nums; }
+
+  /* Selectable option tiles (services, networks) */
+  .option {
+    @apply flex w-full items-center gap-3 rounded-2xl border-2 border-ink-200 bg-surface p-4 text-left transition
+           hover:border-ink-300 focus-visible:shadow-focus;
+  }
+  .option.selected { @apply border-brand-600 bg-brand-50/60 dark:border-brand-500 dark:bg-brand-500/10; }
+
+  .skeleton { @apply animate-pulse rounded-lg bg-ink-100; }
+  .kbd { @apply rounded-md border border-ink-200 bg-surface px-1.5 py-0.5 font-mono text-2xs text-ink-600 shadow-sm; }
+}
+
+@layer utilities {
+  .tabular { font-variant-numeric: tabular-nums; }
+  .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+}
+
+/* ------------------------------------------------------------------ dark theme: tinted utilities
+ * Light tints (brand-50, rose-50 ...) and deep text shades (brand-800 ...) used directly in templates
+ * would glare / disappear on dark surfaces, so remap them to translucent tints and lighter text.
+ */
+@layer utilities {
+  .dark .bg-brand-50, .dark .bg-brand-50\/60 { background-color: rgb(32 154 112 / .12); }
+  .dark .bg-brand-100 { background-color: rgb(32 154 112 / .2); }
+  .dark .bg-accent-50 { background-color: rgb(245 165 36 / .12); }
+  .dark .bg-accent-100 { background-color: rgb(245 165 36 / .2); }
+  .dark .bg-rose-50 { background-color: rgb(244 63 94 / .12); }
+  .dark .bg-rose-100 { background-color: rgb(244 63 94 / .2); }
+  .dark .bg-sky-50 { background-color: rgb(14 165 233 / .12); }
+  .dark .bg-sky-100 { background-color: rgb(14 165 233 / .2); }
+  .dark .text-brand-700, .dark .text-brand-600 { color: #7ccfae; }
+  .dark .text-brand-800, .dark .text-brand-900 { color: #b1e4cd; }
+  .dark .text-accent-700, .dark .text-accent-600 { color: #ffc14d; }
+  .dark .text-rose-700, .dark .text-rose-800, .dark .text-rose-600 { color: #fda4af; }
+  .dark .text-sky-700, .dark .text-sky-800, .dark .text-sky-900 { color: #7dd3fc; }
+  .dark .border-brand-200, .dark .ring-brand-200 { --tw-ring-color: rgb(69 180 139 / .3); border-color: rgb(69 180 139 / .3); }
+  .dark .border-accent-200, .dark .ring-accent-200 { --tw-ring-color: rgb(245 165 36 / .3); border-color: rgb(245 165 36 / .3); }
+  .dark .border-rose-200, .dark .ring-rose-200 { --tw-ring-color: rgb(244 63 94 / .3); border-color: rgb(244 63 94 / .3); }
+  .dark .border-sky-200, .dark .ring-sky-200 { --tw-ring-color: rgb(14 165 233 / .3); border-color: rgb(14 165 233 / .3); }
+  .dark .from-brand-100 { --tw-gradient-from: rgb(32 154 112 / .2) var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #14201c; }
+}

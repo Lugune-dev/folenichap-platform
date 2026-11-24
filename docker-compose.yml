@@ -1,0 +1,44 @@
+# FoleniChap production stack for a single Hostinger KVM VPS.
+# PostgreSQL is an ONLINE managed database (Neon / Supabase / Aiven ...) configured via .env,
+# so there is no database container here and nothing to back up on the VPS itself.
+
+services:
+  backend:
+    build: ./backend-spring
+    env_file: .env
+    environment:
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC"
+    expose: ["8080"]
+    depends_on:
+      redis:
+        condition: service_started
+    restart: always
+    logging: { driver: json-file, options: { max-size: "20m", max-file: "5" } }
+
+  # nginx image with the compiled Angular SPA baked in (see frontend-angular/Dockerfile)
+  nginx:
+    build: ./frontend-angular
+    depends_on: [backend]
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./nginx/security-headers.conf:/etc/nginx/snippets/security-headers.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+    restart: always
+
+  # Optional: SSE fan-out across instances + future caching. Tiny footprint.
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb"]
+    restart: always

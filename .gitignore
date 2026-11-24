@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+certbot/
+node_modules/
+target/
+dist/
+.angular/
+.idea/

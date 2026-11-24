@@ -1,0 +1,178 @@
+server:
+  port: 8080
+  # Trust X-Forwarded-* only from internal proxies (nginx in docker / private network), so a client
+  # cannot spoof its IP to bypass rate limits or the webhook IP allow-list.
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
+  error:
+    include-stacktrace: never
+    include-message: never
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json
+
+spring:
+  application:
+    name: folenichap
+  # Reads the project's .env automatically (no need to `source .env`).
+  # Works when started from backend-spring/ (mvn spring-boot:run) or from the project root (java -jar).
+  # Real environment variables (Docker, CI) still take precedence.
+  config:
+    import:
+      - optional:file:./.env[.properties]
+      - optional:file:../.env[.properties]
+  threads:
+    virtual:
+      enabled: true            # Java 21 virtual threads (good fit for many idle SSE connections)
+
+  # ------------------------------------------------------------------
+  # ONLINE PostgreSQL (Neon / Supabase / Aiven / RDS ...)
+  # DB_URL example (Neon):
+  #   jdbc:postgresql://ep-xxx-pooler.eu-central-1.aws.neon.tech/folenichap?sslmode=require
+  # DB_URL example (Supabase, session pooler):
+  #   jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require
+  # ------------------------------------------------------------------
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: foleni-pool
+      maximum-pool-size: ${DB_POOL_SIZE:8}
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1500000       # < provider idle cut-off
+      keepalive-time: 120000      # keep serverless DBs (Neon) from dropping idle connections
+      data-source-properties:
+        ApplicationName: folenichap
+        reWriteBatchedInserts: true
+
+  # Flyway: use a DIRECT (non-pooled) connection for migrations when your
+  # provider uses PgBouncer in transaction mode (Neon "-pooler", Supabase 6543).
+  flyway:
+    enabled: true
+    url: ${DB_MIGRATION_URL:${DB_URL}}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+      timeout: 3s
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  health:
+    redis:
+      enabled: ${FOLENI_SSE_REDIS_RELAY:false}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: ${API_DOCS_ENABLED:false}
+  api-docs:
+    path: /v3/api-docs
+    enabled: ${API_DOCS_ENABLED:false}
+
+logging:
+  level:
+    tz.co.folenichap: INFO
+    org.hibernate.SQL: WARN
+
+# ----------------------------------------------------------------------
+# FoleniChap application settings
+# ----------------------------------------------------------------------
+foleni:
+  public-base-url: ${PUBLIC_BASE_URL:http://localhost:4200}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  security:
+    jwt-secret: ${JWT_SECRET}                 # base64, >= 256 bits: `openssl rand -base64 48`
+    access-token-minutes: ${JWT_ACCESS_MINUTES:15}
+    refresh-token-days: ${JWT_REFRESH_DAYS:14}
+    refresh-cookie-secure: ${REFRESH_COOKIE_SECURE:true}   # browsers accept Secure cookies on http://localhost too
+    api-docs-enabled: ${API_DOCS_ENABLED:false}
+  bootstrap:
+    super-admin-email: ${SUPER_ADMIN_EMAIL:}
+    super-admin-password: ${SUPER_ADMIN_PASSWORD:}
+    super-admin-name: ${SUPER_ADMIN_NAME:Platform Owner}
+  trial-days: 14
+  require-tenant-approval: ${REQUIRE_TENANT_APPROVAL:false}
+  plans:
+    starter-price: 35000
+    pro-price: 75000
+    pro-monthly-credits: 300
+  sse:
+    redis-relay: ${FOLENI_SSE_REDIS_RELAY:false}
+    heartbeat-seconds: 20
+    timeout-minutes: 60
+  rate-limit:
+    public-tickets-per-minute: 30
+  payment:
+    gateway: ${PAYMENT_GATEWAY:MOCK}          # MOCK | AZAMPAY
+    # MOCK auto-approves payments. It refuses to start unless explicitly allowed (never in production).
+    allow-mock: ${ALLOW_MOCK_PAYMENTS:false}
+    webhook-secret: ${PAYMENT_WEBHOOK_SECRET:}
+    webhook-signature-header: ${PAYMENT_WEBHOOK_SIGNATURE_HEADER:X-Signature}
+    webhook-allowed-ips: ${PAYMENT_WEBHOOK_ALLOWED_IPS:}   # comma separated, empty = any
+    mock-success-delay-seconds: 6
+    azampay:
+      app-name: ${AZAMPAY_APP_NAME:}
+      client-id: ${AZAMPAY_CLIENT_ID:}
+      client-secret: ${AZAMPAY_CLIENT_SECRET:}
+      api-key: ${AZAMPAY_API_KEY:}
+      auth-url: ${AZAMPAY_AUTH_URL:https://authenticator-sandbox.azampay.co.tz}
+      checkout-url: ${AZAMPAY_CHECKOUT_URL:https://sandbox.azampay.co.tz}
+  notification:
+    near-turn-position: 2
+    whatsapp:
+      enabled: ${WHATSAPP_ENABLED:false}
+      api-version: v21.0
+      phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:}
+      access-token: ${WHATSAPP_ACCESS_TOKEN:}
+      template-booked: ${WHATSAPP_TEMPLATE_BOOKED:foleni_ticket_booked}
+      template-near-turn: ${WHATSAPP_TEMPLATE_NEAR:foleni_near_turn}
+      template-called: ${WHATSAPP_TEMPLATE_CALLED:foleni_called}
+      # leave empty to send these by SMS only (until the WhatsApp templates are approved)
+      template-appointment-booked: ${WHATSAPP_TEMPLATE_APPT_BOOKED:}
+      template-appointment-reminder: ${WHATSAPP_TEMPLATE_APPT_REMINDER:}
+      template-password-reset: ${WHATSAPP_TEMPLATE_PASSWORD_RESET:}
+    sms:
+      enabled: ${SMS_ENABLED:false}
+      provider: BEEM
+      beem-api-key: ${BEEM_API_KEY:}
+      beem-secret-key: ${BEEM_SECRET_KEY:}
+      sender-id: ${BEEM_SENDER_ID:FOLENICHAP}
