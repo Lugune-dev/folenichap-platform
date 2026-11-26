@@ -45,10 +45,20 @@ public class SecurityStartupCheck implements InitializingBean {
                             + " random characters (openssl rand -hex 24).");
                 }
                 AppProperties.AzamPay az = pay.azampay();
-                if (az == null || blank(az.appName()) || blank(az.clientId()) || blank(az.clientSecret()) || blank(az.apiKey())) {
-                    problems.add("AZAMPAY_APP_NAME, AZAMPAY_CLIENT_ID, AZAMPAY_CLIENT_SECRET and AZAMPAY_API_KEY are required.");
-                } else if (az.checkoutUrl() != null && az.checkoutUrl().contains("sandbox")) {
-                    log.warn("AzamPay SANDBOX is active: no real money moves.");
+                List<String> missing = new ArrayList<>();
+                if (az == null || blank(az.appName())) missing.add("AZAMPAY_APP_NAME");
+                if (az == null || blank(az.clientId())) missing.add("AZAMPAY_CLIENT_ID");
+                if (az == null || blank(az.clientSecret())) missing.add("AZAMPAY_CLIENT_SECRET");
+                if (!missing.isEmpty()) {
+                    problems.add(String.join(", ", missing) + " required for PAYMENT_GATEWAY=AZAMPAY "
+                            + "(from the AzamPay developer portal app).");
+                } else {
+                    if (blank(az.apiKey())) {
+                        log.info("AZAMPAY_API_KEY not set: checkout calls are sent without the X-API-Key header.");
+                    }
+                    if (az.checkoutUrl() != null && az.checkoutUrl().contains("sandbox")) {
+                        log.warn("AzamPay SANDBOX is active: no real money moves.");
+                    }
                 }
                 if (pay.webhookAllowedIps() == null || pay.webhookAllowedIps().stream().allMatch(String::isBlank)) {
                     log.warn("PAYMENT_WEBHOOK_ALLOWED_IPS is empty: payment callbacks are accepted from any IP "

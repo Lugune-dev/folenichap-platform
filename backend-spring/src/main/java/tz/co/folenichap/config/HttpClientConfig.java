@@ -2,6 +2,7 @@ package tz.co.folenichap.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -19,6 +20,7 @@ public class HttpClientConfig {
                 .build();
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
         factory.setReadTimeout(Duration.ofSeconds(30));
-        return RestClient.builder().requestFactory(factory);
+        // Buffered so every request carries Content-Length (some gateways mis-read chunked bodies as empty).
+        return RestClient.builder().requestFactory(new BufferingClientHttpRequestFactory(factory));
     }
 }

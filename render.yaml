@@ -53,11 +53,26 @@ services:
       - key: API_DOCS_ENABLED
         value: "false"
 
-      # ---- Payments ----
-      # Demo start: simulated payments. Switch to AZAMPAY (see AZAMPAY_SETUP.md) before taking real money.
+      # ---- Payments: AzamPay (see AZAMPAY_SETUP.md) ----
+      # AzamPay callback URL (set in the AzamPay portal):
+      #   https://<app>.vercel.app/api/v1/webhooks/payments/azampay?token=<PAYMENT_WEBHOOK_SECRET>
       - key: PAYMENT_GATEWAY
-        value: MOCK
+        value: AZAMPAY
       - key: ALLOW_MOCK_PAYMENTS
-        value: "true"
+        value: "false"
       - key: PAYMENT_WEBHOOK_SECRET   # openssl rand -hex 24
+        sync: false
+      - key: AZAMPAY_APP_NAME         # app name exactly as registered in the AzamPay developer portal
+        sync: false
+      - key: AZAMPAY_CLIENT_ID
+        sync: false
+      - key: AZAMPAY_CLIENT_SECRET
+        sync: false
+      - key: AZAMPAY_API_KEY          # optional: the portal's API key / token, sent as X-API-Key
+        sync: false
+      - key: AZAMPAY_AUTH_URL         # sandbox https://authenticator-sandbox.azampay.co.tz | live https://authenticator.azampay.co.tz
+        sync: false
+      - key: AZAMPAY_CHECKOUT_URL     # sandbox https://sandbox.azampay.co.tz | live https://checkout.azampay.co.tz
+        sync: false
+      - key: PAYMENT_WEBHOOK_ALLOWED_IPS  # optional: AzamPay callback IPs, comma separated
         sync: false

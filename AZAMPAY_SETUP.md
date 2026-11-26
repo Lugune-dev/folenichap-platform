@@ -31,13 +31,38 @@ ALLOW_MOCK_PAYMENTS=false
 AZAMPAY_APP_NAME=...
 AZAMPAY_CLIENT_ID=...
 AZAMPAY_CLIENT_SECRET=...
-AZAMPAY_API_KEY=...
+AZAMPAY_API_KEY=...        # optional
 AZAMPAY_AUTH_URL=https://authenticator-sandbox.azampay.co.tz
 AZAMPAY_CHECKOUT_URL=https://sandbox.azampay.co.tz
 ```
 
 Restart the backend. It logs `AzamPay SANDBOX is active` and refuses to start if a key is missing or the
 webhook secret is weak.
+
+## 2b. On Render (+ Vercel)
+
+Set these in Render -> `folenichap-api` -> **Environment** (names must match exactly, e.g. `AZAMPAY_AUTH_URL`, not `ZAMPAY_AUTH_URL`):
+
+| Key | Sandbox value | Live value |
+|---|---|---|
+| `PAYMENT_GATEWAY` | `AZAMPAY` | `AZAMPAY` |
+| `ALLOW_MOCK_PAYMENTS` | `false` | `false` |
+| `AZAMPAY_APP_NAME` | app name from the portal | same |
+| `AZAMPAY_CLIENT_ID` / `AZAMPAY_CLIENT_SECRET` | sandbox app keys | production keys |
+| `AZAMPAY_API_KEY` | optional (sent as `X-API-Key` when set) | optional |
+| `AZAMPAY_AUTH_URL` | `https://authenticator-sandbox.azampay.co.tz` | `https://authenticator.azampay.co.tz` |
+| `AZAMPAY_CHECKOUT_URL` | `https://sandbox.azampay.co.tz` | `https://checkout.azampay.co.tz` |
+| `PAYMENT_WEBHOOK_SECRET` | `openssl rand -hex 24` | rotate when going live |
+
+Callback URL for the AzamPay portal (it goes through the Vercel proxy):
+
+```
+https://<app>.vercel.app/api/v1/webhooks/payments/azampay?token=<PAYMENT_WEBHOOK_SECRET>
+```
+
+On start the log shows `AzamPay SANDBOX|PRODUCTION: auth=... checkout=... app=...`. If AzamPay rejects a
+request, the log shows its HTTP status and message (`AzamPay token request rejected: ...` or
+`AzamPay checkout ... rejected: ...`).
 
 ## 3. Go live
 
