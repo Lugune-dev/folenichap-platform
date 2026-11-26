@@ -5,5 +5,5 @@ RUN npm ci || npm install
 COPY . .
 RUN npm run build
 
-FROM nginx:1.27-alpine
+FROM nginx:1.29-alpine
 COPY --from=build /app/dist/browser /usr/share/nginx/html
