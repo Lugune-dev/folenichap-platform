@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn -q -B -DskipTests package
 
 # ---- runtime ----
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 RUN addgroup -S foleni && adduser -S foleni -G foleni
 WORKDIR /app
 COPY --from=build /app/target/folenichap.jar app.jar
