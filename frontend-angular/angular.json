@@ -25,7 +25,12 @@
                 "input": "src/assets",
                 "output": "assets"
               },
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              {
+                "glob": "assetlinks.json",
+                "input": "src/.well-known",
+                "output": ".well-known"
+              }
             ],
             "styles": [
               "node_modules/@fontsource-variable/inter/index.css",

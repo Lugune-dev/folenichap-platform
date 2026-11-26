@@ -7,3 +7,10 @@ target/
 dist/
 .angular/
 .idea/
+
+# Android signing material (never commit)
+*.keystore
+*.jks
+signing-key-info.txt
+*.apk
+*.aab

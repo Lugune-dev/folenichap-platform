@@ -40,4 +40,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
       - working-directory: frontend-angular
-        run: npm install && npm run build
+        run: npm ci && npm run build
+      # Fail the build on known high/critical vulnerabilities in code that ships to browsers
+      - name: Security audit (production dependencies)
+        working-directory: frontend-angular
+        run: npm audit --omit=dev --audit-level=high

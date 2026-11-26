@@ -41,7 +41,12 @@ public @interface StrongPassword {
             if (value == null) {
                 return true; // @NotBlank reports missing values
             }
-            if (value.length() < 10 || value.length() > 100) {
+            return isStrong(value);
+        }
+
+        /** Same rule for code paths without bean validation (e.g. the super-admin bootstrap). */
+        public static boolean isStrong(String value) {
+            if (value == null || value.length() < 10 || value.length() > 100) {
                 return false;
             }
             boolean upper = false, lower = false, digit = false;
